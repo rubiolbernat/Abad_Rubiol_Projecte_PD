@@ -1,78 +1,129 @@
 #include <Arduino.h>
-#include "SPIFFS.h"
-#include <WiFi.h>
-#include <WebServer.h>
+#include <ESP32Servo.h>
 
-const char* ssid     = "OPPO BernArtNet";
-const char* password = "putaespanya1";
+// create four servo objects 
+Servo servo1;
+Servo servo2;
+Servo servo3;
+Servo servo4;
+Servo servo5;
+// Published values for SG90 servos; adjust if needed
+int minUs = 500;
+int maxUs = 2500;
 
-WebServer server;
+// These are all GPIO pins on the ESP32
+// Recommended pins include 2,4,12-19,21-23,25-27,32-33
+// for the ESP32-S2 the GPIO pins are 1-21,26,33-42
+// for the ESP32-S3 the GPIO pins are 1-21,35-45,47-48
+// for the ESP32-C3 the GPIO pins are 1-10,18-21
+#if defined(CONFIG_IDF_TARGET_ESP32C3)
+int servo1Pin = 7;
+int servo2Pin = 6;
+int servo3Pin = 5;
+int servo4Pin = 4;
+int servo5Pin = 3;
+#else
+int servo1Pin = 25;
+int servo2Pin = 16;
+int servo3Pin = 14;
+#if defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
+int servo4Pin = 13;
+#else
+int servo4Pin = 32;
+#endif
+int servo5Pin = 4;
+#endif
 
-// Declaració del subprograma
-String fileContent;
-void handle_root() {
-  server.send(200, "text/html", fileContent);
-}
-
-// Implementació del subprograma per llegir fitxer
-String readFile(String fileName) {
-  File file = SPIFFS.open(fileName);
-  String content = "";
-
-  if (!file) {
-    Serial.println("Failed to open file for reading");
-    return content;
-  }
-
-  while (file.available()) {
-    char c = file.read();
-    content += c;
-  }
-
-  file.close();
-  return content;
-}
-
+int pos = 0;      // position in degrees
+ESP32PWM pwm;
 void setup() {
-  Serial.begin(115200);
+	// Allow allocation of all timers
+	ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
+	Serial.begin(115200);
+	servo1.setPeriodHertz(50);      // Standard 50hz servo
+	servo2.setPeriodHertz(50);      // Standard 50hz servo
+	servo3.setPeriodHertz(50);      // Standard 50hz servo
+	servo4.setPeriodHertz(50);      // Standard 50hz servo
+	//servo5.setPeriodHertz(50);      // Standard 50hz servo
 
-  //Files setup
-  if (!SPIFFS.begin(true)) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
 
-  fileContent = readFile("/index.html"); // Assigna el contingut a la variable global
-  delay(1000);
-
-  //Web setup
-  Serial.println("Try Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected successfully");
-  Serial.print("Got IP: ");
-  Serial.println(WiFi.localIP());  //Show ESP32 IP on serial
-
-  server.begin();
-  Serial.println("HTTP server started");
-  
-  server.on("/", handle_root);
-
-  // Cridar al subprograma per llegir el contingut del fitxer "text.txt"
-  
-  // Imprimir el contingut llegit
-  //Serial.println("File Content:");
-  //Serial.println(fileContent);
-
-  // Resta del teu codi
 }
 
 void loop() {
-  server.handleClient();
+	servo1.attach(servo1Pin, minUs, maxUs);
+	servo2.attach(servo2Pin, minUs, maxUs);
+#if defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32C3)
+	pwm.attachPin(37, 10000);//10khz
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
+	pwm.attachPin(7, 10000);//10khz
+#else
+	pwm.attachPin(27, 10000);//10khz
+#endif
+	servo3.attach(servo3Pin, minUs, maxUs);
+	servo4.attach(servo4Pin, minUs, maxUs);
+
+	//servo5.attach(servo5Pin, minUs, maxUs);
+/*	Serial.println('1');
+servo1.write(0);
+delay(2000);
+Serial.println('2');
+servo1.write(90);
+delay(2000);
+Serial.println('3');
+servo1.write(180);
+delay(2000);
+
+	*/
+	for (pos = -180; pos <= 180; pos += 1) { // sweep from 0 degrees to 180 degrees
+		// in steps of 1 degree
+		servo1.write(pos);
+		Serial.println(pos);
+		delay(100);             // waits 20ms for the servo to reach the position
+	}/*
+	for (pos = 180; pos >= 0; pos -= 1) { // sweep from 180 degrees to 0 degrees
+		servo1.write(pos);
+		delay(1);
+	}/*
+
+	for (pos = 0; pos <= 180; pos += 1) { // sweep from 0 degrees to 180 degrees
+		// in steps of 1 degree
+		servo3.write(pos);
+		delay(1);             // waits 20ms for the servo to reach the position
+	}
+	for (pos = 180; pos >= 0; pos -= 1) { // sweep from 180 degrees to 0 degrees
+		servo3.write(pos);
+		delay(1);
+	}
+
+	for (pos = 0; pos <= 180; pos += 1) { // sweep from 0 degrees to 180 degrees
+		// in steps of 1 degree
+		servo4.write(pos);
+		delay(1);             // waits 20ms for the servo to reach the position
+	}
+	for (pos = 180; pos >= 0; pos -= 1) { // sweep from 180 degrees to 0 degrees
+		servo4.write(pos);
+		delay(1);
+	}
+	for (pos = 0; pos <= 180; pos += 1) { // sweep from 0 degrees to 180 degrees
+		// in steps of 1 degree
+		servo5.write(pos);
+		delay(1);             // waits 20ms for the servo to reach the position
+	}
+	for (pos = 180; pos >= 0; pos -= 1) { // sweep from 180 degrees to 0 degrees
+		servo5.write(pos);
+		delay(1);
+	}*/
+	//servo1.detach();
+	servo1.write(90);
+	servo2.detach();;
+	servo3.detach();
+	servo4.detach();
+	//pwm.detachPin(27);
+
+	delay(2000);
+
 }
 
