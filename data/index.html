@@ -1,63 +1,107 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html>
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Meva Pàgina Web</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #010724;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        header {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            padding: 1em;
-        }
+    <title>ESP32 ROBOT ARM</title>
 
-        section {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 2em;
-        }
+    <link href="css/entireframework.min.css" rel="stylesheet" type="text/css">
+    <link href="css/toggle-switchy.css" rel="stylesheet" type="text/css">
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
 
-        img {
-            height: 40vh;
-            max-width: 50vw;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #3498db;
-        }
-
-        p {
-          color: white;
-            font-size: 1.2em;
-            line-height: 1.6em;
-        }
-    </style>
 </head>
+
 <body>
+    <nav class="nav" tabindex="-1" onclick="this.focus()">
+        <div class="container">
+            <a class="pagename current" href="#">Processadors Digitals</a>
+            <a href="#">By: Bernat Rubiol & Àfrica Abad</a>
+        </div>
+    </nav>
+    <button class="btn-close btn btn-sm">×</button>
+    <div class="container">
+        <div class="hero">
+            <div class="container">
+                <h1>ESP32 Braç Robòtic</h1>
+                <form class="form1" action="">
+                    <label for="nunchuk" class="labels">Nunchuk</label>
+                    <div class="load-content">
+                        <label class="toggle-switchy" for="nunchuk-button" data-size="xl" data-style="rounded">
+                            <input type="checkbox" name="nunchuk-button" id="nunchuk-button" %NUNCHUK_BUTTON_STATUS%>
+                            <span class="toggle">
+                                <span class="switch"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <label for="tube" class="labels">Web</label>
+                    <div class="load-content">
+                        <label class="toggle-switchy" for="tube" data-size="xl" data-style="rounded">
+                            <input type="checkbox" name="tube" id="tube" %TUBE_TEMPLATE_STATUS%>
+                            <span class="toggle">
+                                <span class="switch"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <label for="bulb" class="labels">Bulb</label>
+                    <div class="load-content">
+                        <label class="toggle-switchy" for="bulb" data-size="xl" data-style="rounded">
+                            <input type="checkbox" name="bulb" id="bulb" %BULB_TEMPLATE_STATUS%>
+                            <span class="toggle">
+                                <span class="switch"></span>
+                            </span>
+                        </label>
+                    </div>
+                    <label for="socket" class="labels">Socket</label>
+                    <div class="load-content">
+                        <label class="toggle-switchy" for="socket" data-size="xl" data-style="rounded">
+                            <input type="checkbox" name="socket" id="socket" %SOCKET_TEMPLATE_STATUS%>
+                            <span class="toggle">
+                                <span class="switch"></span>
+                            </span>
 
-    <header>
-        <h1>Benvingut a la Meva Pàgina Web</h1>
-    </header>
+                        </label>
+                    </div>
+                    <div class="slider-content">
+                        <div class="slider-content-text">
+                            <label for="servo1" class="simple-labels">Servo 1:</label>
+                            <span class="slider_value" id="servo1-value">%SERVO1_VALUE%</span>
+                        </div>
+                        <div class="slider-content-input">
+                            <input type="range" id="servo1-slider" min="0" max="180" value="%SLIDER_VALUE_1%">
+                        </div>
+                        <div class="slider-content-text">
+                            <label for="servo2" class="simple-labels">Servo 2:</label>
+                            <span class="slider_value" id="servo2-value">%SERVO2_VALUE%</span>
+                        </div>
+                        <div class="slider-content-input">
+                            <input type="range" id="servo2-slider" min="0" max="180" value="%SLIDER_VALUE_2%">
+                        </div>
+                        <div class="slider-content-text">
+                            <label for="servo3" class="simple-labels">Servo 3:</label>
+                            <span class="slider_value" id="servo3-value">%SERVO3_VALUE%</span>
+                        </div>
+                        <div class="slider-content-input">
+                            <input type="range" id="servo3-slider" min="0" max="180" value="%SLIDER_VALUE_3%">
+                        </div>
+                        <div class="slider-content-text">
+                            <label for="servo4" class="simple-labels">Servo 4:</label>
+                            <span class="slider_value" id="servo4-value">%SERVO4_VALUE%</span>
+                        </div>
+                        <div class="slider-content-input">
+                            <input type="range" id="servo4-slider" min="0" max="180" value="%SLIDER_VALUE_4%">
+                        </div>
+                    </div>
 
-    <section>
-      <p>Creada per els alumnes Bernat Rubiol i Àfrica Abad.</p>
-    </section>
-    <section>
-      <img src="https://s.yimg.com/ny/api/res/1.2/RAGNZd8yfQuLcv_4PgmvWQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTY0MDtoPTgxNQ--/https://media.zenfs.com/es/business_insider_m_xico_941/8c95d1526d7016a425e689353805fd27" alt="Foto">
-      <img src="https://phantom-elmundo.unidadeditorial.es/053aa2667903bc06b23620cc451f2aac/resize/828/f/jpg/assets/multimedia/imagenes/2019/10/08/15705484708598.jpg" alt="Foto">
-    </section>
-    
+                </form>
+            </div>
+
+
+
+            <script src="js/custom.js"></script>
+        </div>
+    </div>
 </body>
+
 </html>

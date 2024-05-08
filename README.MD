@@ -1,4 +1,4 @@
 # Projecte final PD
 
 connexions:
-![alt text](SG90-servo-circuit-diagram.jpg)
+![alt text](img/SG90-servo-circuit-diagram.jpg)
