@@ -20,7 +20,7 @@ unsigned int controller_type_2 = 0;
 // dades
 SDades dades;
 
-MyWebServer webServer("MOVISTAR_6B6C", "592X7x5ySxb222FTr7uU");
+MyWebServer webServer("OPPO BernArtNet", "12345678");
 
 // Funció setup() d'Arduino
 void startnunchuk()
@@ -96,11 +96,11 @@ void xynunchuktoservo(int x, int y, float &retx, float &rety)
 {
     if (x > 5 || x < -5)
     {
-        retx = x/2;
+        retx = x/8;
     }
     if (y > 5 || y < -5)
     {
-        rety = y/2;
+        rety = y/8;
     }
 }
 
@@ -111,11 +111,13 @@ void loop()
     // Si es control per nunchuk
     if (webServer.getnunchukStatus())
     {
-        webServer.set_handle(dades);
+        //Serial.println("tthjk");
+       // webServer.set_handle(dades);
         //  Llegir les dades del primer nunchuk
         const unsigned char *dataN_1 = wii_i2c_read_state();
         if (dataN_1)
         {
+            //Serial.println("testttt");
             wii_i2c_request_state();
             wii_i2c_nunchuk_state state;
             wii_i2c_decode_nunchuk(dataN_1, &state);
@@ -154,7 +156,7 @@ void loop()
 
         // Pausa breu entre lectures per evitar col·lisions
         delay(10);
-
+/*
         // Llegir les dades del segon nunchuk
         const unsigned char *dataN_2 = wii_i2c_read_state();
         if (dataN_2)
@@ -166,13 +168,13 @@ void loop()
                         Serial.printf("Nunchuk 2:\n");
                         Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
                         Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
-                        Serial.printf("c=%d, z=%d\n", state.c, state.z);*/
+                        Serial.printf("c=%d, z=%d\n", state.c, state.z);*
         }
         else
         {
             Serial.printf("No dataN for nunchuk 2 :(\n");
         }
-
+*/
         servoController = dades.positions;
     }
     else
@@ -191,5 +193,5 @@ void loop()
     }
 
     // Pausa entre iteracions del bucle principal
-    //delay(500);
+    delay(10);
 }
