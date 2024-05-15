@@ -31,7 +31,7 @@ Braç robòtic:
 
 El nostre professor Manuel ens va dona el braç robòtic a mig montar. Acabar de montar-lo no va ser un problema.
 
-Vam tenir la sort que vam trobar projectes similars al nostre per internet que també comptaven d'un nunchuk, però nosaltres com que tenim 3 servos per comptes de dos, necessitavem dos nunchuks per poder-los controlar tots.
+Vam tenir la sort que vam trobar projectes similars al nostre per internet que també comptaven d'un nunchuk, però nosaltres com que tenim 4 servos per comptes de dos, necessitavem dos nunchuks per poder-los controlar tots.
 
 Per a la incorporació del segon nunchuk si que vam tenir més dificultats i molts errors. 
 
