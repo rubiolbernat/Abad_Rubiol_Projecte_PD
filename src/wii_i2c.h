@@ -13,13 +13,13 @@ extern "C" {
 
 struct wii_i2c_nunchuk_state {
   // accelerometer
-  short int acc_x;
-  short int acc_y;
-  short int acc_z;
+  int acc_x;
+  int acc_y;
+  int acc_z;
 
   // analog stick:
-  signed char x;
-  signed char y;
+  int x;
+  int y;
 
   // buttons:
   char c;
