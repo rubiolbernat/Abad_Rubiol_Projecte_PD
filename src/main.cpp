@@ -8,10 +8,8 @@ ServoController servoController(12, 13, 14, 15);
 
 // PIN 27 reservat per a senyal interna
 // Pins connectats als nunchuks:
-#define PIN_SDA_1 21 // dataN nunchuk 1   2
+#define PIN_SDA_1 21 // dataN nunchuk 1
 #define PIN_SCL_1 22 // Clock nunchuk 1
-#define PIN_SDA_2 29 // dataN nunchuk 2
-#define PIN_SCL_2 23 // Clock nunchuk 2
 // ESP32 I2C port (0 o 1):
 #define WII_I2C_PORT 0
 unsigned int controller_type_1 = 0;
@@ -39,20 +37,6 @@ void startnunchuk()
     }
     controller_type_1 = wii_i2c_decode_ident(ident_1);
 
-    /*// Inicialitzar i llegir identificador del segon nunchuk
-    if (wii_i2c_init(WII_I2C_PORT, PIN_SDA_2, PIN_SCL_2) != 0)
-    {
-        Serial.printf("ERROR initializing wii i2c controller for nunchuk 2\n");
-        return;
-    }
-    const unsigned char *ident_2 = wii_i2c_read_ident();
-    if (!ident_2)
-    {
-        Serial.printf("no ident for nunchuk 2 :(\n");
-        return;
-    }
-    controller_type_2 = wii_i2c_decode_ident(ident_2);
-*/
     // Mostrar la detecció dels nunchuks
     if (controller_type_1 == WII_I2C_IDENT_NUNCHUK)
     {
@@ -62,16 +46,7 @@ void startnunchuk()
     {
         Serial.printf("-> unknown controller detected for nunchuk 1: 0x%06x\n", controller_type_1);
     }
-    /*
-        if (controller_type_2 == WII_I2C_IDENT_NUNCHUK)
-        {
-            Serial.printf("-> nunchuk 2 detected\n");
-        }
-        else
-        {
-            Serial.printf("-> unknown controller detected for nunchuk 2: 0x%06x\n", controller_type_2);
-        }*/
-
+    
     // Solicitar l'estat del primer nunchuk
     wii_i2c_request_state();
 }
@@ -183,16 +158,6 @@ void loop()
                     }
                 }
             }
-
-            /*Serial.println("desdenunch");
-            Serial.println(retx);
-            Serial.println(dades.positions[1]);
-            Serial.println(dades.positions[2]);*/
-            /*
-            Serial.printf("Nunchuk 1:\n");
-            Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
-            Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
-            Serial.printf("c=%d, z=%d\n", state.c, state.z);*/
         }
         else
         {
@@ -201,25 +166,6 @@ void loop()
 
         // Pausa breu entre lectures per evitar col·lisions
         delay(10);
-        /*
-                // Llegir les dades del segon nunchuk
-                const unsigned char *dataN_2 = wii_i2c_read_state();
-                if (dataN_2)
-                {
-                    wii_i2c_request_state();
-                    wii_i2c_nunchuk_state state;
-                    wii_i2c_decode_nunchuk(dataN_2, &state);
-                    /*
-                                Serial.printf("Nunchuk 2:\n");
-                                Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
-                                Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
-                                Serial.printf("c=%d, z=%d\n", state.c, state.z);*
-                }
-                else
-                {
-                    Serial.printf("No dataN for nunchuk 2 :(\n");
-                }
-        */
         Serial.println("    ");
         Serial.print("servo 1: ");
         Serial.println(dades.positions[1]);

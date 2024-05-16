@@ -27,6 +27,27 @@ Braç robòtic:
 
 (el farem quan acabem el `main.cpp`)
 
+
+```mermaid
+graph TD
+A[Inicialització] --> B{Inicialitzar Arduino}
+B --> C{Inicialitzar controlador servos}
+C --> D{Inicialitzar servidor web}
+D --> E{Iniciar nunchuk 1}
+E --> F[Control per nunchuk?]
+F --> |Si| G{Llegir dades nunchuk 1}
+G --> H{Calcular noves posicions servos}
+H --> I{Actualitzar posicions servos}
+I --> J{Imprimir posicions servos}
+J --> K{Pausa}
+K --> F
+F --> |No| L{Servidor web gestiona dades}
+L --> M{Imprimir dades emmagatzemades}
+M --> N{Actualitzar posicions servos}
+N --> O{Pausa}
+O --> A
+```
+
 ## Procediment
 
 El nostre professor Manuel ens va dona el braç robòtic a mig montar. Acabar de montar-lo no va ser un problema.
