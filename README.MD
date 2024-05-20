@@ -12,3 +12,43 @@ Crear una interfície de control pel nostre robot, utilitzant el nunchuk i una w
 Connexions servo:
 
 ![alt text](img/SG90-servo-circuit-diagram.jpg)
+
+
+## Diagrama de flux
+
+(el farem quan acabem el `main.cpp`)
+
+
+```mermaid
+graph TD
+A[Inicialització] --> B{Inicialitzar Arduino}
+B --> C{Inicialitzar controlador servos}
+C --> D{Inicialitzar servidor web}
+D --> E{Iniciar nunchuk 1}
+E --> F[Control per nunchuk?]
+F --> |Si| G{Llegir dades nunchuk 1}
+G --> H{Calcular noves posicions servos}
+H --> I{Actualitzar posicions servos}
+I --> J{Imprimir posicions servos}
+J --> K{Pausa}
+K --> F
+F --> |No| L{Servidor web gestiona dades}
+L --> M{Imprimir dades emmagatzemades}
+M --> N{Actualitzar posicions servos}
+N --> O{Pausa}
+O --> A
+```
+
+## Procediment
+
+El nostre professor Manuel ens va dona el braç robòtic a mig montar. Acabar de montar-lo no va ser un problema.
+
+Vam tenir la sort que vam trobar projectes similars al nostre per internet que també comptaven d'un nunchuk, però nosaltres com que tenim 4 servos per comptes de dos, necessitavem dos nunchuks per poder-los controlar tots.
+
+Per a la incorporació del segon nunchuk si que vam tenir més dificultats i molts errors. 
+
+Quan el projecte ja estava casi acabat, el nostre professor ens va proposar de fer la incorporació de la placa ESP32 a la base del braç robòtic per tal que quedés més net i ordenat. Així que això vam fer.
+
+    (posar foto de nosaltres)
+
+## Ventatges i deventatges 
