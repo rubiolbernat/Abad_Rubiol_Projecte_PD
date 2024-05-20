@@ -71,11 +71,11 @@ void xynunchuktoservo(int x, int y, float &retx, float &rety)
 {
     if (x > 6 || x < -6)
     {
-        retx = x / 16;
+        retx = x / 32;
     }
     if (y > 6 || y < -6)
     {
-        rety = y / 16;
+        rety = y / 32;
     }
 }
 
