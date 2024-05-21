@@ -61,25 +61,21 @@ struct wii_i2c_classic_state {
   char minus;
 };
 
-// common functions (single-core and multi-core mode):
-int wii_i2c_init(int i2c_port_num, int sda_pin, int scl_pin);
-const unsigned char *wii_i2c_read_ident(void);
-unsigned int wii_i2c_decode_ident(const unsigned char *ident);
-void wii_i2c_decode_nunchuk(const unsigned char *data, struct wii_i2c_nunchuk_state *state);
-void wii_i2c_decode_classic(const unsigned char *data, struct wii_i2c_classic_state *state);
+struct wii_i2c_functions {
+    // funcions comunes (mode de nucli únic i multinucli):
+    int (*wii_i2c_init)(int i2c_port_num, int sda_pin, int scl_pin);
+    const unsigned char *(*wii_i2c_read_ident)(void);
+    unsigned int (*wii_i2c_decode_ident)(const unsigned char *ident);
+    void (*wii_i2c_decode_nunchuk)(const unsigned char *data, struct wii_i2c_nunchuk_state *state);
+    void (*wii_i2c_decode_classic)(const unsigned char *data, struct wii_i2c_classic_state *state);
 
-// for use in single-core mode:
-int wii_i2c_request_state(void);
-const unsigned char *wii_i2c_read_state(void);
+    // per a utilitzar en mode de nucli únic:
+    int (*wii_i2c_request_state)(void);
+    const unsigned char *(*wii_i2c_read_state)(void);
 
-#if WII_I2C_ENABLE_MULTI_CORE
-// for use in multi-core mode:
-int wii_i2c_start_read_task(int cpu_num, int delay);
-const unsigned char *wii_i2c_read_data_from_task(void);
-#endif /* WII_I2C_ENABLE_MULTI_CORE */
-  
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* WII_I2C_H_FILE */
+    #if WII_I2C_ENABLE_MULTI_CORE
+    // per a utilitzar en mode de multinucli:
+    int (*wii_i2c_start_read_task)(int cpu_num, int delay);
+    const unsigned char *(*wii_i2c_read_data_from_task)(void);
+    #endif /* WII_I2C_ENABLE_MULTI_CORE */
+};
