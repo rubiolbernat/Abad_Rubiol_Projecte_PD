@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "ServoController.cpp"
 #include "MyWebServer.cpp"
-#include "wii_i2c.h"
+//#include "wii_i2c.h"
+#include "WiiI2C.h"
 
 // Inicialitzem una instància de ServoController amb els pins dels servos
 ServoController servoController(12, 13, 14, 15);
@@ -10,32 +11,53 @@ ServoController servoController(12, 13, 14, 15);
 // Pins connectats als nunchuks:
 #define PIN_SDA_1 21 // dataN nunchuk 1
 #define PIN_SCL_1 22 // Clock nunchuk 1
+#define PIN_SDA_2 23 // dataN nunchuk 2
+#define PIN_SCL_2 18 // Clock nunchuk 2
 // ESP32 I2C port (0 o 1):
 #define WII_I2C_PORT 0
-unsigned int controller_type_1 = 0;
-unsigned int controller_type_2 = 0;
 
 // dades
 SDades dades;
-
 MyWebServer webServer("OPPO BernArtNet", "12345678");
+WiiI2C wii1;//, wii2;
 
-// Funció setup() d'Arduino
+void show_nunchuk1(const unsigned char *data)
+{
+  WiiI2CNunchukState state;
+  wii1.decodeNunchuk(data, &state);
+  
+  Serial.printf("Nunchuk 1:\n");
+  Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
+  Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
+  Serial.printf("c=%d, z=%d\n", state.c, state.z);
+}
+
+void show_nunchuk2(const unsigned char *data)
+{
+  WiiI2CNunchukState state;
+  //wii2.decodeNunchuk(data, &state);
+  
+  Serial.printf("Nunchuk 2:\n");
+  Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
+  Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
+  Serial.printf("c=%d, z=%d\n", state.c, state.z);
+}
+
 void startnunchuk()
 {
-    // Inicialitzar i llegir identificador del primer nunchuk
-    if (wii_i2c_init(WII_I2C_PORT, PIN_SDA_1, PIN_SCL_1) != 0)
+    // Nunchuk 1
+    if (wii1.init(WII_I2C_PORT, PIN_SDA_1, PIN_SCL_1) != 0)
     {
         Serial.printf("ERROR initializing wii i2c controller for nunchuk 1\n");
         return;
     }
-    const unsigned char *ident_1 = wii_i2c_read_ident();
+    const unsigned char *ident_1 = wii1.readIdent();
     if (!ident_1)
     {
         Serial.printf("no ident for nunchuk 1 :(\n");
         return;
     }
-    controller_type_1 = wii_i2c_decode_ident(ident_1);
+    unsigned int controller_type_1 = wii1.decodeIdent(ident_1);
 
     // Mostrar la detecció dels nunchuks
     if (controller_type_1 == WII_I2C_IDENT_NUNCHUK)
@@ -46,9 +68,35 @@ void startnunchuk()
     {
         Serial.printf("-> unknown controller detected for nunchuk 1: 0x%06x\n", controller_type_1);
     }
-    
-    // Solicitar l'estat del primer nunchuk
-    wii_i2c_request_state();
+
+    // Nunchuk 2
+    /*
+    if (wii2.init(WII_I2C_PORT, PIN_SDA_2, PIN_SCL_2) != 0)
+    {
+        Serial.printf("ERROR initializing wii i2c controller for nunchuk 2\n");
+        return;
+    }
+    const unsigned char *ident_2 = wii2.readIdent();
+    if (!ident_2)
+    {
+        Serial.printf("no ident for nunchuk 2 :(\n");
+        return;
+    }
+    unsigned int controller_type_2 = wii2.decodeIdent(ident_2);
+
+    // Mostrar la detecció dels nunchuks
+    if (controller_type_2 == WII_I2C_IDENT_NUNCHUK)
+    {
+        Serial.printf("-> nunchuk 2 detected\n");
+    }
+    else
+    {
+        Serial.printf("-> unknown controller detected for nunchuk 2: 0x%06x\n", controller_type_2);
+    }
+*/
+    // Solicitar l'estat dels nunchuk
+    wii1.requestState();
+    //wii2.requestState();
 }
 
 void setup()
@@ -71,34 +119,33 @@ void xynunchuktoservo(int x, int y, float &retx, float &rety)
 {
     if (x > 6 || x < -6)
     {
-        retx = x / 32;
+        retx = x / 32.0;
     }
     if (y > 6 || y < -6)
     {
-        rety = y / 32;
+        rety = y / 32.0;
     }
 }
 
 // Funció loop() d'Arduino
 void loop()
 {
-
     // Si es control per nunchuk
-    if (webServer.getnunchukStatus())
+    if (!webServer.getnunchukStatus())
     {
-        // Serial.println("tthjk");
-        // webServer.set_handle(dades);
-        //  Llegir les dades del primer nunchuk
-        const unsigned char *dataN_1 = wii_i2c_read_state();
+        // Llegir les dades del primer nunchuk
+        const unsigned char *dataN_1 = wii1.readState();
+       // const unsigned char *dataN_2 = wii2.readState();
+        
         if (dataN_1)
         {
-            // Serial.println("testttt");
-            wii_i2c_request_state();
-            wii_i2c_nunchuk_state state;
-            wii_i2c_decode_nunchuk(dataN_1, &state);
+            wii1.requestState();
+            WiiI2CNunchukState state;
+            wii1.decodeNunchuk(dataN_1, &state);
             float retx = 0, rety = 0;
             xynunchuktoservo(static_cast<int>(state.x), static_cast<int>(state.y), retx, rety);
 
+            show_nunchuk1(dataN_1);
             // Servo 1 base
             float newPosition = dades.positions[1] + retx;
             if (newPosition <= 180 && newPosition >= 0)
@@ -122,50 +169,55 @@ void loop()
                 // Actualitzar la posició
                 dades.positions[2] += rety;
             }
-
-            // Servo 3 braç
-            if (state.c && state.z)
-            {
-                // Assegurar que no s'excedeixen els límits abans de sumar
-                if (dades.positions[3] + rety > 180)
-                {
-                    rety = 180 - dades.positions[3];
-                }
-                else if (dades.positions[3] + rety < 0)
-                {
-                    rety = -dades.positions[3];
-                }
-
-                // Actualitzar la posició
-                dades.positions[3] += rety;
-            }
-
-            // Servo 4 pinça
-            if (!state.c || !state.z)
-            {
-                if (state.c)
-                {
-                    if (dades.positions[4] < 180) // Comprovar que no s'excedeix el límit superior
-                    {
-                        dades.positions[4] += 1;
-                    }
-                }
-                else if (state.z)
-                {
-                    if (dades.positions[4] > 0) // Comprovar que no s'excedeix el límit inferior
-                    {
-                        dades.positions[4] -= 1;
-                    }
-                }
-            }
         }
         else
         {
             Serial.printf("No dataN for nunchuk 1 :(\n");
         }
+/*
+        if (dataN_2)
+        {
+            wii2.requestState();
+            wii_i2c_nunchuk_state state;
+            wii2.decodeNunchuk(dataN_2, &state);
+            float retx = 0, rety = 0;
+            xynunchuktoservo(static_cast<int>(state.x), static_cast<int>(state.y), retx, rety);
+            
+            show_nunchuk2(dataN_2);
+            delay(1000);
+            // Servo 3 braç 2
+            float newPosition = dades.positions[3] + retx;
+            if (newPosition <= 180 && newPosition >= 0)
+            {
+                dades.positions[3] = newPosition;
+            }
 
+            // Servo 4 pinça
+            if (!state.c && !state.z)
+            {
+                // Assegurar que no s'excedeixen els límits abans de sumar
+                if (dades.positions[4] + rety > 180)
+                {
+                    rety = 180 - dades.positions[4];
+                }
+                else if (dades.positions[4] + rety < 0)
+                {
+                    rety = -dades.positions[4];
+                }
+
+                // Actualitzar la posició
+                dades.positions[4] += rety;
+            }
+
+        }
+        else
+        {
+            Serial.printf("No dataN for nunchuk 2 :(\n");
+        }
+*/
         // Pausa breu entre lectures per evitar col·lisions
-        delay(10);
+        delay(1000);
+        
         Serial.println("    ");
         Serial.print("servo 1: ");
         Serial.println(dades.positions[1]);
@@ -176,13 +228,11 @@ void loop()
         Serial.print("servo 4: ");
         Serial.println(dades.positions[4]);
         servoController = dades.positions;
-       // delay(100);
     }
     else
     {
         webServer.handle(dades);
-        // Serial.printf("holaaaaaaaaaaaaaaaa");
-        //  Si no es control per nunchuk, imprimeix les dades emmagatzemades
+        // Si no es control per nunchuk, imprimeix les dades emmagatzemades
         Serial.println(dades.positions[1]);
         Serial.println(dades.positions[2]);
         Serial.println(dades.positions[3]);
@@ -194,5 +244,5 @@ void loop()
     }
 
     // Pausa entre iteracions del bucle principal
-    delay(10);
+    delay(200);
 }

@@ -13,6 +13,13 @@ Connexions servo:
 
 ![alt text](img/SG90-servo-circuit-diagram.jpg)
 
+Conexions nunchuk:
+
+![alt text](https://www.mauroalfieri.it/wp-content/uploads/2012/02/connettore-nunchuck.jpg)
+
+Braç robòtic:
+
+![alt text](https://m.media-amazon.com/images/I/61XfEKpOMVL._AC_SX425_.jpg)
 
 ## Diagrama de flux
 

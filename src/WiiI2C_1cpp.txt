@@ -1,0 +1,148 @@
+#include "WiiI2C.h"
+#include <driver/i2c.h>
+#include <string.h>
+
+esp_err_t WiiI2C::setupI2C(i2c_port_t i2c_port_num, int sda_pin, int scl_pin)
+{
+    this->wii_i2c_port_num = i2c_port_num;
+    i2c_config_t conf;
+    conf.mode = I2C_MODE_MASTER;
+    conf.sda_io_num = sda_pin;
+    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.scl_io_num = scl_pin;
+    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.master.clk_speed = 100000; // 100KHz
+
+    i2c_param_config(i2c_port_num, &conf);
+    return i2c_driver_install(i2c_port_num, conf.mode, 0, 0, 0);
+}
+
+esp_err_t WiiI2C::write(const uint8_t *data, size_t len)
+{
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_write(cmd, data, len, true);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(this->wii_i2c_port_num, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+esp_err_t WiiI2C::read(uint8_t *data, size_t len)
+{
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (address << 1) | I2C_MASTER_READ, true);
+    i2c_master_read(cmd, data, len, I2C_MASTER_LAST_NACK);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(this->wii_i2c_port_num, cmd, 1000 / portTICK_PERIOD_MS);
+    i2c_cmd_link_delete(cmd);
+    return ret;
+}
+
+int WiiI2C::init(int i2c_port, int sda_pin, int scl_pin)
+{
+    this->wii_i2c_port_num = i2c_port;
+    this->address = 0x52; // Wii Nunchuk I2C address
+    uint8_t data_init1[] = {0xF0, 0x55};
+    uint8_t data_init2[] = {0xFB, 0x00};
+
+    if (setupI2C(i2c_port, sda_pin, scl_pin) != ESP_OK)
+        return 1;
+    if (write(data_init1, sizeof(data_init1)) != ESP_OK)
+        return 1;
+    if (write(data_init2, sizeof(data_init2)) != ESP_OK)
+        return 1;
+    return 0;
+}
+
+int WiiI2C::requestState()
+{
+    uint8_t data_req_data[] = {0x00};
+    if (write(data_req_data, sizeof(data_req_data)) != ESP_OK)
+        return 1;
+    return 0;
+}
+
+const unsigned char *WiiI2C::readIdent()
+{
+    uint8_t data_req_ident[] = {0xFA};
+    if (write(data_req_ident, sizeof(data_req_ident)) != ESP_OK)
+        return NULL;
+    if (read(read_data, sizeof(read_data)) != ESP_OK)
+        return NULL;
+    return read_data;
+}
+
+const unsigned char *WiiI2C::readState()
+{
+    if (read(read_data, sizeof(read_data)) != ESP_OK)
+        return NULL;
+    return read_data;
+}
+
+unsigned int WiiI2C::decodeIdent(const unsigned char *ident)
+{
+    if (!ident)
+        return WII_I2C_IDENT_NONE;
+    return (((uint32_t)ident[5] << 0) |
+            ((uint32_t)ident[4] << 8) |
+            ((uint32_t)ident[3] << 16) |
+            ((uint32_t)ident[2] << 24));
+}
+
+void WiiI2C::decodeNunchuk(const unsigned char *data, WiiI2CNunchukState *state)
+{
+    // Funció per desxifrar les dades del nunchuk
+    state->acc_x = (data[2] << 2) | ((data[5] >> 2) & 0x03);
+    state->acc_y = (data[3] << 2) | ((data[5] >> 4) & 0x03);
+    state->acc_z = (data[4] << 2) | ((data[5] >> 6) & 0x03);
+    state->x = data[0];
+    state->y = data[1];
+    state->c = !(data[5] & 0x02);
+    state->z = !(data[5] & 0x01);
+}
+/*
+void WiiI2C::init_v(uint8_t &init1, uint8_t &init2, uint8_t &req_ident, uint8_t &req_data)
+{
+    this->data_init1[] = init1;
+    this->data_init2[] = init2;
+    this->data_req_ident[] = req_ident;
+    this->data_req_data[] = req_data;
+}*/
+
+#if WII_I2C_ENABLE_MULTI_CORE
+
+int WiiI2C::startReadTask(int cpu_num, int delay)
+{
+    read_state_task_delay = delay;
+    read_mutex = xSemaphoreCreateMutex();
+    if (!read_mutex)
+    {
+        return 1;
+    }
+
+    BaseType_t ret = xTaskCreatePinnedToCore(read_state_task_func, "wiiI2CTask", 1024, NULL, 0, &read_state_task_handle, cpu_num);
+    if (ret != pdPASS)
+    {
+        vSemaphoreDelete(read_mutex);
+        return 1;
+    }
+    return 0;
+}
+
+const unsigned char *WiiI2C::readDataFromTask()
+{
+    if (!shared_copy_ready)
+        return NULL;
+
+    xSemaphoreTake(read_mutex, portMAX_DELAY);
+    memcpy(read_data, (unsigned char *)shared_copy_data, sizeof(read_data));
+    shared_copy_ready = 0;
+    xSemaphoreGive(read_mutex);
+
+    return (const unsigned char *)read_data;
+}
+
+#endif /* WII_I2C_ENABLE_MULTI_CORE */
