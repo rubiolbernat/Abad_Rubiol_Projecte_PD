@@ -63,6 +63,7 @@ struct wii_i2c_classic_state {
 
 // common functions (single-core and multi-core mode):
 int wii_i2c_init(int i2c_port_num, int sda_pin, int scl_pin);
+int wii_i2c_init(int i2c_port_num, int sda_pin, int scl_pin);
 const unsigned char *wii_i2c_read_ident(void);
 unsigned int wii_i2c_decode_ident(const unsigned char *ident);
 void wii_i2c_decode_nunchuk(const unsigned char *data, struct wii_i2c_nunchuk_state *state);
