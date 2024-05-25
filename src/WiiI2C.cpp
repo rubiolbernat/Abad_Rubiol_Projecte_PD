@@ -23,13 +23,13 @@ volatile uint32_t WiiI2C::shared_copy_ready;
 esp_err_t WiiI2C::setupI2C(i2c_port_t i2c_port_num, int sda_pin, int scl_pin)
 {
     this->wii_i2c_port_num = i2c_port_num;
-    i2c_config_t conf;
-    conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = sda_pin;
-    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.scl_io_num = scl_pin;
-    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    conf.master.clk_speed = 100000; // 100KHz
+    
+     this->conf.mode = I2C_MODE_MASTER;
+     this->conf.sda_io_num = sda_pin;
+     this->conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+     this->conf.scl_io_num = scl_pin;
+     this->conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+     this->conf.master.clk_speed = 100000; // 100KHz
 
     Serial.println("sda_pin");
     Serial.println(sda_pin);

@@ -70,6 +70,7 @@ class WiiI2C
 {
 private:
     uint8_t address;
+    i2c_config_t conf;
     static const uint8_t data_init1[];
     static const uint8_t data_init2[];
     static const uint8_t data_req_ident[];

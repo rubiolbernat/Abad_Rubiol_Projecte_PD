@@ -10,7 +10,7 @@ ServoController servoController(12, 13, 14, 15);
 // PIN 27 reservat per a senyal interna
 // Pins connectats als nunchuks:
 #define PIN_SDA_1 21 // dataN nunchuk 1
-#define PIN_SCL_1 22 // Clock nunchuk 1
+#define PIN_SCL_1 20 // Clock nunchuk 1
 #define PIN_SDA_2 23 // dataN nunchuk 2
 #define PIN_SCL_2 18 // Clock nunchuk 2
 // ESP32 I2C port (0 o 1):
