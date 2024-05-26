@@ -17,18 +17,19 @@
 struct WiiI2CNunchukState
 {
     // accelerometer
-    int acc_x;
-    int acc_y;
-    int acc_z;
+  short int acc_x;
+  short int acc_y;
+  short int acc_z;
 
-    // analog stick:
-    int x;
-    int y;
+  // analog stick:
+  signed char x;
+  signed char y;
 
-    // buttons:
-    char c;
-    char z;
+  // buttons:
+  char c;
+  char z;
 };
+
 
 struct WiiI2CClassicState
 {

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "ServoController.cpp"
 #include "MyWebServer.cpp"
-//#include "wii_i2c.h"
+// #include "wii_i2c.h"
 #include "WiiI2C.h"
 
 // Inicialitzem una instància de ServoController amb els pins dels servos
@@ -10,7 +10,7 @@ ServoController servoController(12, 13, 14, 15);
 // PIN 27 reservat per a senyal interna
 // Pins connectats als nunchuks:
 #define PIN_SDA_1 21 // dataN nunchuk 1
-#define PIN_SCL_1 20 // Clock nunchuk 1
+#define PIN_SCL_1 22 // Clock nunchuk 1
 #define PIN_SDA_2 23 // dataN nunchuk 2
 #define PIN_SCL_2 18 // Clock nunchuk 2
 // ESP32 I2C port (0 o 1):
@@ -19,28 +19,28 @@ ServoController servoController(12, 13, 14, 15);
 // dades
 SDades dades;
 MyWebServer webServer("OPPO BernArtNet", "12345678");
-WiiI2C wii1;//, wii2;
+WiiI2C wii1, wii2;
 
 void show_nunchuk1(const unsigned char *data)
 {
-  WiiI2CNunchukState state;
-  wii1.decodeNunchuk(data, &state);
-  
-  Serial.printf("Nunchuk 1:\n");
-  Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
-  Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
-  Serial.printf("c=%d, z=%d\n", state.c, state.z);
+    WiiI2CNunchukState state;
+    wii1.decodeNunchuk(data, &state);
+
+    Serial.printf("Nunchuk 1:\n");
+    Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
+    Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
+    Serial.printf("c=%d, z=%d\n", state.c, state.z);
 }
 
 void show_nunchuk2(const unsigned char *data)
 {
-  WiiI2CNunchukState state;
-  //wii2.decodeNunchuk(data, &state);
-  
-  Serial.printf("Nunchuk 2:\n");
-  Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
-  Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
-  Serial.printf("c=%d, z=%d\n", state.c, state.z);
+    WiiI2CNunchukState state;
+    wii2.decodeNunchuk(data, &state);
+
+    Serial.printf("Nunchuk 2:\n");
+    Serial.printf("giroscopi = (%5d,%5d,%5d)\n", state.acc_x, state.acc_y, state.acc_z);
+    Serial.printf("pos joyst = (%5d,%5d)\n", state.x, state.y);
+    Serial.printf("c=%d, z=%d\n", state.c, state.z);
 }
 
 void startnunchuk()
@@ -70,7 +70,7 @@ void startnunchuk()
     }
 
     // Nunchuk 2
-    /*
+
     if (wii2.init(WII_I2C_PORT, PIN_SDA_2, PIN_SCL_2) != 0)
     {
         Serial.printf("ERROR initializing wii i2c controller for nunchuk 2\n");
@@ -93,10 +93,10 @@ void startnunchuk()
     {
         Serial.printf("-> unknown controller detected for nunchuk 2: 0x%06x\n", controller_type_2);
     }
-*/
+
     // Solicitar l'estat dels nunchuk
     wii1.requestState();
-    //wii2.requestState();
+    wii2.requestState();
 }
 
 void setup()
@@ -135,8 +135,6 @@ void loop()
     {
         // Llegir les dades del primer nunchuk
         const unsigned char *dataN_1 = wii1.readState();
-       // const unsigned char *dataN_2 = wii2.readState();
-        
         if (dataN_1)
         {
             wii1.requestState();
@@ -174,15 +172,17 @@ void loop()
         {
             Serial.printf("No dataN for nunchuk 1 :(\n");
         }
-/*
+
+        const unsigned char *dataN_2 = wii2.readState();
         if (dataN_2)
         {
             wii2.requestState();
-            wii_i2c_nunchuk_state state;
+            // wii_i2c_nunchuk_state state;
+            WiiI2CNunchukState state;
             wii2.decodeNunchuk(dataN_2, &state);
             float retx = 0, rety = 0;
             xynunchuktoservo(static_cast<int>(state.x), static_cast<int>(state.y), retx, rety);
-            
+
             show_nunchuk2(dataN_2);
             delay(1000);
             // Servo 3 braç 2
@@ -208,16 +208,15 @@ void loop()
                 // Actualitzar la posició
                 dades.positions[4] += rety;
             }
-
         }
         else
         {
             Serial.printf("No dataN for nunchuk 2 :(\n");
         }
-*/
+
         // Pausa breu entre lectures per evitar col·lisions
         delay(1000);
-        
+
         Serial.println("    ");
         Serial.print("servo 1: ");
         Serial.println(dades.positions[1]);
