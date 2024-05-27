@@ -22,12 +22,12 @@ struct WiiI2CNunchukState
   short int acc_z;
 
   // analog stick:
-  signed char x;
-  signed char y;
+  int x;
+  int y;
 
   // buttons:
-  char c;
-  char z;
+  bool  c;
+  bool z;
 };
 
 
