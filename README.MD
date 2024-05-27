@@ -21,6 +21,10 @@ Braç robòtic:
 
 ![alt text](https://m.media-amazon.com/images/I/61XfEKpOMVL._AC_SX425_.jpg)
 
+Problemes amb la connexió del segon nunchuck:
+
+![alt text](image.png)
+
 ## Diagrama de flux
 
 (el farem quan acabem el `main.cpp`)
