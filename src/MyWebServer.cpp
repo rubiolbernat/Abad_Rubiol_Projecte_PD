@@ -33,8 +33,6 @@ private:
     // Variables per emmagatzemar l'estat del dimmer i dels botons
     int dimmerValue;
     bool nunchukStatus;
-    bool tubeStatus;
-    bool bulbStatus;
     bool socketStatus;
 
     // Processor for index page template
@@ -47,16 +45,6 @@ private:
             {
                 status = "checked";
             }
-        }
-        if (var == "TUBE_TEMPLATE_STATUS")
-        {
-            /*if (proto.isTubeOn()) {
-                status = "checked";
-            }*/
-        }
-        else if (var == "BULB_TEMPLATE_STATUS")
-        {
-            status = "checked";
         }
         else if (var == "SOCKET_TEMPLATE_STATUS")
         {
@@ -75,7 +63,7 @@ private:
     }
 
 public:
-    MyWebServer(const char *ssid, const char *password) : ssid(ssid), password(password), server(80), dimmerValue(0), tubeStatus(false), bulbStatus(false), socketStatus(false) {}
+    MyWebServer(const char *ssid, const char *password) : ssid(ssid), password(password), server(80), dimmerValue(0), socketStatus(false) {}
 
     void begin()
     {
@@ -138,50 +126,6 @@ public:
                       {
                           data["isError"] = "true";
                           data["error_description"] = "No nunchuk status parameter was sent by the client!";
-                      }
-
-                      AsyncResponseStream *response = request->beginResponseStream("application/json");
-                      serializeJson(data, *response);
-                      request->send(response); });
-
-        // server toggle request for "tube"
-        server.on("/toggle/tube", HTTP_GET, [&](AsyncWebServerRequest *request)
-                  {
-                      StaticJsonDocument<100> data;
-                      if (request->hasParam("status"))
-                      {
-                          String status = request->getParam("status")->value();
-                          bool tubeStatus = (status == "true");
-                          this->tubeStatus = tubeStatus;
-                          data["success"] = "true";
-                          data["current_tube_status"] = this->tubeStatus;
-                      }
-                      else
-                      {
-                          data["isError"] = "true";
-                          data["error_description"] = "No tube status parameter was sent by the client!";
-                      }
-
-                      AsyncResponseStream *response = request->beginResponseStream("application/json");
-                      serializeJson(data, *response);
-                      request->send(response); });
-
-        // server toggle request for "bulb"
-        server.on("/toggle/bulb", HTTP_GET, [&](AsyncWebServerRequest *request)
-                  {
-                      StaticJsonDocument<100> data;
-                      if (request->hasParam("status"))
-                      {
-                          String status = request->getParam("status")->value();
-                          bool bulbStatus = (status == "true");
-                          this->bulbStatus = bulbStatus;
-                          data["success"] = "true";
-                          data["current_bulb_status"] = this->bulbStatus;
-                      }
-                      else
-                      {
-                          data["isError"] = "true";
-                          data["error_description"] = "No bulb status parameter was sent by the client!";
                       }
 
                       AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -317,17 +261,6 @@ public:
     {
         return nunchukStatus;
     }
-
-    bool getTubeStatus() const
-    {
-        return tubeStatus;
-    }
-
-    bool getBulbStatus() const
-    {
-        return bulbStatus;
-    }
-
     bool getSocketStatus() const
     {
         return socketStatus;

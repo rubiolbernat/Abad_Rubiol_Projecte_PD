@@ -144,7 +144,7 @@ void loop()
             }
 
             // Servo 4 pinça
-            if (state.c || state.z)
+            if (!state.c || !state.z)
             {
                 if (state.c)
                 {
@@ -193,7 +193,7 @@ void loop()
 
         servoController = dades.positions;
 
-        delay(500);
+       // delay(10);
     }
 
     // Pausa entre iteracions del bucle principal
