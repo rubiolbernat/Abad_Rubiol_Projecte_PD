@@ -63,3 +63,134 @@ Quan el projecte ja estava casi acabat, el nostre professor ens va proposar de f
     (posar foto de nosaltres)
 
 ## Ventatges i deventatges 
+
+## Funcionament del codi
+
+# Diagrama de codi
+
+## Incloure llibreries i inicialitzacions
+- Incloure llibreries
+  - `<Arduino.h>`
+  - `"ServoController.cpp"`
+  - `"MyWebServer.cpp"`
+  - `"wii_i2c.h"`
+  - `"ESP32Wiimote.h"`
+- Inicialitzar ESP32Wiimote
+  - `ESP32Wiimote wiimote;`
+- Inicialitzar ServoController amb els pins dels servos
+  - `ServoController servoController(12, 13, 14, 15);`
+
+## Definicions i configuracions
+- Definir pins i constants
+  - `#define PIN_SDA_1 21` (data Nunchuk 1)
+  - `#define PIN_SCL_1 22` (Clock Nunchuk 1)
+  - `#define WII_I2C_PORT 0`
+- Inicialitzar variables
+  - `unsigned int controller_type_1 = 0;`
+  - `unsigned int controller_type_2 = 0;`
+- Dades del sistema
+  - `SDades dades;`
+- Inicialitzar el servidor web
+  - `MyWebServer webServer("MOVISTAR_6B6C", "592X7x5ySxb222FTr7uU");`
+
+## Funció `startnunchuk()`
+- Inicialitzar i llegir identificador del primer Nunchuk
+  - `wii_i2c_init(WII_I2C_PORT, PIN_SDA_1, PIN_SCL_1)`
+  - Llegir identificador
+  - Decodificar identificador
+  - Solicitar estat del primer Nunchuk
+
+## Funció `setup()`
+- Inicialitzar sistema
+  - `Serial.begin(115200);`
+  - `wiimote.init();`
+  - `servoController.setup();`
+  - `servoController.attachServos();`
+  - `webServer.begin();`
+- Iniciar Nunchuks
+  - `startnunchuk();`
+
+## Funció `xynunchuktoservo(int x, int y, float &retx, float &rety)`
+- Convertir coordenades de Nunchuk a valors per a servos
+
+## Funció `loop()`
+- Comprovar estat del servidor web
+  - Si està activat el control per Nunchuk
+    - Llegir dades del Nunchuk
+    - Decodificar estat del Nunchuk
+    - Actualitzar posicions dels servos
+    - Mostrar dades dels servos
+    - Assignar posicions dels servos al controlador
+  - Si està activat el control per Bluetooth
+    - Processar dades del Wiimote
+    - Convertir coordenades de Wiimote a valors per a servos
+    - Actualitzar posicions dels servos
+    - Mostrar dades dels servos
+    - Assignar posicions dels servos al controlador
+  - Si no es fa servir control per Nunchuk ni per Bluetooth
+    - Processar dades del servidor web
+    - Mostrar dades dels servos
+    - Assignar posicions dels servos al controlador
+- Pausa entre iteracions del bucle principal
+  - `delay(4);`
+
+
+# Grafic 2
+
+```mermaid
+graph TD
+    subgraph Inicialitzacions
+        A[Incloure llibreries] --> B[Inicialitzar ESP32Wiimote]
+        B --> C[Inicialitzar ServoController]
+    end
+
+    subgraph Definicions_i_configuracions
+        D[Definir pins i constants]
+        D --> E[Inicialitzar variables]
+        E --> F[Dades del sistema]
+        F --> G[Inicialitzar el servidor web]
+    end
+
+    subgraph Funció_startnunchuk
+        H[Inicialitzar i llegir identificador del primer Nunchuk]
+        H --> I[Llegir identificador]
+        I --> J[Decodificar identificador]
+        J --> K[Solicitar estat del primer Nunchuk]
+    end
+
+    subgraph Funció_setup
+        L[Inicialitzar sistema]
+        L --> M[Iniciar Nunchuks]
+        M --> H
+    end
+
+    subgraph Funció_xynunchuktoservo
+        N[Convertir coordenades de Nunchuk a valors per a servos]
+    end
+
+    subgraph Funció_loop
+        O[Comprovar estat del servidor web]
+        O --> P{Control per Nunchuk?}
+        P -- Sí --> Q[Llegir dades del Nunchuk]
+        Q --> R[Decodificar estat del Nunchuk]
+        R --> S[Actualitzar posicions dels servos]
+        S --> T[Mostrar dades dels servos]
+        T --> U[Assignar posicions dels servos al controlador]
+
+        P -- No --> V{Control per Bluetooth?}
+        V -- Sí --> W[Processar dades del Wiimote]
+        W --> X[Convertir coordenades de Wiimote a valors per a servos]
+        X --> S
+
+        V -- No --> Y[Processar dades del servidor web]
+        Y --> T
+
+        T --> Z[Pausa entre iteracions del bucle principal]
+        Z --> Z2[delay 4]
+    end
+
+    Inicialitzacions --> Definicions_i_configuracions
+    Definicions_i_configuracions --> Funció_setup
+    Funció_setup --> Funció_loop
+    Funció_xynunchuktoservo --> Funció_loop
+```
