@@ -23,8 +23,17 @@ select {
     width: auto
 }
 
+.container2{
+    margin: 10px 20px;
+    width: auto
+}
+
 label>* {
     display: inline
+}
+
+.form1{
+    max-width: 1200px;
 }
 
 form>* {
