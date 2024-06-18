@@ -174,7 +174,7 @@ void loop()
 
         // Pausa breu entre lectures per evitar col·lisions
         delay(10);
-        Serial.print("WEB 1: ");
+        Serial.print("I2C 1: ");
         Serial.print(dades.positions[1]);
         Serial.print(" 2: ");
         Serial.print(dades.positions[2]);
