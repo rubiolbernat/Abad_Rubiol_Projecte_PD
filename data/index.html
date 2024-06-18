@@ -29,20 +29,19 @@
                     <label for="nunchuk" class="labels">Nunchuk</label>
                     <div class="load-content">
                         <label class="toggle-switchy" for="nunchuk-button" data-size="xl" data-style="rounded">
-                            <input type="checkbox" name="nunchuk-button" id="nunchuk-button" %NUNCHUK_BUTTON_STATUS%>
+                            <input type="checkbox" name="nunchuk-button" id="nunchuk-button">
                             <span class="toggle">
                                 <span class="switch"></span>
                             </span>
                         </label>
                     </div>
-                    <label for="socket" class="labels">Socket</label>
+                    <label for="socket" class="labels">Bluetooth</label>
                     <div class="load-content">
                         <label class="toggle-switchy" for="socket" data-size="xl" data-style="rounded">
-                            <input type="checkbox" name="socket" id="socket" %SOCKET_TEMPLATE_STATUS%>
+                            <input type="checkbox" name="socket" id="socket">
                             <span class="toggle">
                                 <span class="switch"></span>
                             </span>
-
                         </label>
                     </div>
                     <div class="slider-content">
@@ -75,13 +74,30 @@
                             <input type="range" id="servo4-slider" min="0" max="180" value="%SLIDER_VALUE_4%">
                         </div>
                     </div>
-
                 </form>
             </div>
-
-
-
             <script src="js/custom.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const nunchukButton = document.getElementById('nunchuk-button');
+                    const bluetoothButton = document.getElementById('socket');
+
+                    // Assegurar que els botons estiguin desactivats per defecte en carregar la pàgina
+                    nunchukButton.checked = false;
+                    bluetoothButton.checked = false;
+
+                    function toggleButtons(event) {
+                        if (event.target === nunchukButton && nunchukButton.checked) {
+                            bluetoothButton.checked = false;
+                        } else if (event.target === bluetoothButton && bluetoothButton.checked) {
+                            nunchukButton.checked = false;
+                        }
+                    }
+
+                    nunchukButton.addEventListener('change', toggleButtons);
+                    bluetoothButton.addEventListener('change', toggleButtons);
+                });
+            </script>
         </div>
     </div>
 </body>

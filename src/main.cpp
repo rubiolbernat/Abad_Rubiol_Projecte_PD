@@ -3,6 +3,9 @@
 #include "MyWebServer.cpp"
 #include "wii_i2c.h"
 
+#include "ESP32Wiimote.h"
+ESP32Wiimote wiimote;
+
 // Inicialitzem una instància de ServoController amb els pins dels servos
 ServoController servoController(12, 13, 14, 15);
 
@@ -18,7 +21,9 @@ unsigned int controller_type_2 = 0;
 // dades
 SDades dades;
 
-MyWebServer webServer("OPPO BernArtNet", "12345678");
+// const char* ssid     = "MOVISTAR_6B6C"; OPPO BernArtNet
+// const char* password = "592X7x5ySxb222FTr7uU";12345678
+MyWebServer webServer("MOVISTAR_6B6C", "592X7x5ySxb222FTr7uU");
 
 // Funció setup() d'Arduino
 void startnunchuk()
@@ -55,7 +60,7 @@ void setup()
 {
     // Inicialitzem Arduino
     Serial.begin(115200);
-
+    wiimote.init();
     // Inicialitzem el controlador de servos
     servoController.setup();
     servoController.attachServos();
@@ -71,11 +76,11 @@ void xynunchuktoservo(int x, int y, float &retx, float &rety)
 {
     if (x > 6 || x < -6)
     {
-        retx = x / 32;
+        retx = x / 64;
     }
     if (y > 6 || y < -6)
     {
-        rety = y / 32;
+        rety = y / 64;
     }
 }
 
@@ -169,33 +174,147 @@ void loop()
 
         // Pausa breu entre lectures per evitar col·lisions
         delay(10);
-        Serial.println("    ");
-        Serial.print("servo 1: ");
-        Serial.println(dades.positions[1]);
-        Serial.print("servo 2: ");
-        Serial.println(dades.positions[2]);
-        Serial.print("servo 3: ");
-        Serial.println(dades.positions[3]);
-        Serial.print("servo 4: ");
+        Serial.print("WEB 1: ");
+        Serial.print(dades.positions[1]);
+        Serial.print(" 2: ");
+        Serial.print(dades.positions[2]);
+        Serial.print(" 3: ");
+        Serial.print(dades.positions[3]);
+        Serial.print(" 4: ");
         Serial.println(dades.positions[4]);
+
         servoController = dades.positions;
         // delay(100);
+    }
+    else if (webServer.getbtStatus())
+    {
+        wiimote.task();
+        if (wiimote.available() > 0)
+        {
+            // Suposem que wiimote.getButtonState() retorna aquest valor
+            uint16_t button = wiimote.getButtonState();
+
+            // Array de booleans per emmagatzemar l'estat de cada botó
+            bool buttonPressed[16];
+
+            // Comprovar l'estat de cada botó
+            for (uint8_t i = 0; i < 16; ++i)
+            {
+                buttonPressed[i] = (button & (1 << i)) != 0;
+            }
+            // Mostrar l'estat de cada botó
+            /*for (uint8_t i = 0; i < 16; ++i)
+            {
+                Serial.print("Botó ");
+                Serial.print(i);
+                Serial.print(": ");
+                Serial.println(buttonPressed[i] ? "Premut" : "No premut");
+            }*/
+
+            NunchukState nunchuk = wiimote.getNunchukState();
+
+            /*Serial.printf("%04x\n", button);
+            if (button == ESP32Wiimote::BUTTON_A)
+            {
+                Serial.println("A button");
+            }*/
+
+            float retx = 0, rety = 0;
+            xynunchuktoservo(static_cast<int>(nunchuk.xStick - 127), static_cast<int>(nunchuk.yStick - 127), retx, rety);
+
+            // Servo 1 base
+            float newPosition = dades.positions[1] + retx;
+            if (newPosition <= 180 && newPosition >= 0)
+            {
+                dades.positions[1] = newPosition;
+            }
+
+            // Servo 2 braç
+            // Assegurar que no s'excedeixen els límits abans de sumar
+            if (dades.positions[2] + rety > 180)
+            {
+                rety = 180 - dades.positions[2];
+            }
+            else if (dades.positions[2] + rety < 0)
+            {
+                rety = -dades.positions[2];
+            }
+            // Actualitzar la posició
+            dades.positions[2] += rety;
+
+            xynunchuktoservo(static_cast<int>(nunchuk.xStick - 127), static_cast<int>(nunchuk.yStick - 127), retx, rety);
+            // Servo 3 braç
+            if ((button & (wiimote.BUTTON_UP || wiimote.BUTTON_RIGHT)) || (wiimote.BUTTON_DOWN || wiimote.BUTTON_LEFT))
+            {
+                // Serial.printf("%04x\n", button);
+                if (button & wiimote.BUTTON_UP)
+                {
+                    if (dades.positions[3] < 180) // Comprovar que no s'excedeix el límit superior
+                    {
+                        dades.positions[3] += 2;
+                    }
+                }
+                else if (button & wiimote.BUTTON_DOWN)
+                {
+                    if (dades.positions[3] > 0) // Comprovar que no s'excedeix el límit inferior
+                    {
+                        dades.positions[3] -= 2;
+                    }
+                }
+            }
+
+            // Servo 4 pinça
+            if ((button & wiimote.BUTTON_A) || (button & wiimote.BUTTON_B))
+            {
+                // Serial.printf("%04x\n", button);
+                if (button & wiimote.BUTTON_A)
+                {
+                    if (dades.positions[4] < 180) // Comprovar que no s'excedeix el límit superior
+                    {
+                        dades.positions[4] += 2;
+                    }
+                }
+                else if (button & wiimote.BUTTON_B)
+                {
+                    if (dades.positions[4] > 0) // Comprovar que no s'excedeix el límit inferior
+                    {
+                        dades.positions[4] -= 2;
+                    }
+                }
+            }
+        }
+        Serial.print("BLUETOOTH 1: ");
+        Serial.print(dades.positions[1]);
+        Serial.print(" 2: ");
+        Serial.print(dades.positions[2]);
+        Serial.print(" 3: ");
+        Serial.print(dades.positions[3]);
+        Serial.print(" 4: ");
+        Serial.println(dades.positions[4]);
+
+        servoController = dades.positions;
+        // delay(10);
     }
     else
     {
         webServer.handle(dades);
         // Serial.printf("holaaaaaaaaaaaaaaaa");
         //  Si no es control per nunchuk, imprimeix les dades emmagatzemades
-        Serial.println(dades.positions[1]);
-        Serial.println(dades.positions[2]);
-        Serial.println(dades.positions[3]);
+
+        Serial.print("WEB 1: ");
+        Serial.print(dades.positions[1]);
+        Serial.print(" 2: ");
+        Serial.print(dades.positions[2]);
+        Serial.print(" 3: ");
+        Serial.print(dades.positions[3]);
+        Serial.print(" 4: ");
         Serial.println(dades.positions[4]);
 
         servoController = dades.positions;
 
-       // delay(10);
+        // delay(10);
     }
 
     // Pausa entre iteracions del bucle principal
-    delay(10);
+    delay(4);
 }

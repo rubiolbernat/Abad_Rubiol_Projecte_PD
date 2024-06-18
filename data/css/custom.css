@@ -5,11 +5,16 @@
 }
 
 body {
+  height: 100vh;
   background: #eee;
+  background-image: url('https://images.squarespace-cdn.com/content/v1/60c1285cfc2bbe32af4c9c81/3af22e2f-104b-4b1b-b8cc-15613d4e82a2/Hero_Test6.jpg');
+  background-size: cover; /* Fa que la imatge cobreixi tota la pantalla */
+  background-repeat: no-repeat; /* Evita que la imatge es repeteixi */
+  background-position: center; /* Centra la imatge a la pantalla */
 }
 
 .hero {
-  background-image: url('https://static.vecteezy.com/system/resources/previews/019/023/313/non_2x/robotic-arm-industrial-png.png');
+  /*background-image: url('https://static.vecteezy.com/system/resources/previews/019/023/313/non_2x/robotic-arm-industrial-png.png');*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -19,6 +24,7 @@ body {
 }
 
 .hero h1 {
+  color: #eee;
   margin-top: 0;
   margin-bottom: 0.3em;
 }

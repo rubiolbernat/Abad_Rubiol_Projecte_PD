@@ -261,6 +261,10 @@ public:
     {
         return nunchukStatus;
     }
+    bool getbtStatus() const
+    {
+        return socketStatus;
+    }
     bool getSocketStatus() const
     {
         return socketStatus;
