@@ -273,21 +273,6 @@ public:
     void handle(SDades &outdades)
     {
         outdades = dades;
-        // Pots posar aquí el teu codi per actualitzar l'estat del dimmer i dels botons
-        // Exemple:
-        // dimmerValue = proto.getDimmerValue();
-        // tubeStatus = proto.isTubeOn();
-        // bulbStatus = proto.isBulbOn();
-        // socketStatus = proto.isSocketOn();
-        /*Serial.print("ps 2 value: ");
-        Serial.println(dades.positions[2]);
-        /*
-        Serial.print("Button 11 value: ");
-        Serial.println(dades.nunchukStatus);
-        Serial.print("Button 2 value: ");
-        Serial.println(tubeStatus);
-        Serial.print("Slider value: ");
-        Serial.println(bulbStatus);*/
     }
     void set_handle(SDades &outdades)
     {
