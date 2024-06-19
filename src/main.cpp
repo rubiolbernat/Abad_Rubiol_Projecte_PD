@@ -23,7 +23,8 @@ SDades dades;
 
 // const char* ssid     = "MOVISTAR_6B6C"; OPPO BernArtNet
 // const char* password = "592X7x5ySxb222FTr7uU";12345678
-MyWebServer webServer("MOVISTAR_6B6C", "592X7x5ySxb222FTr7uU");
+//MyWebServer webServer("MOVISTAR_6B6C", "592X7x5ySxb222FTr7uU");
+MyWebServer webServer("OPPO BernArtNet", "12345678");
 
 // Funció setup() d'Arduino
 void startnunchuk()
