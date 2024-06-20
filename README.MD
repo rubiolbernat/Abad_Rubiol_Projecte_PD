@@ -13,6 +13,8 @@ Connexions servo:
 
 ![alt text](img/SG90-servo-circuit-diagram.jpg)
 
+![alt text](img/web.png)
+
 Conexions nunchuk:
 
 ![alt text](https://www.mauroalfieri.it/wp-content/uploads/2012/02/connettore-nunchuck.jpg)
