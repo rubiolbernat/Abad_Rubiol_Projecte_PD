@@ -252,14 +252,14 @@ void loop()
                 {
                     if (dades.positions[3] < 180) // Comprovar que no s'excedeix el límit superior
                     {
-                        dades.positions[3] += 2;
+                        dades.positions[3] += 1;
                     }
                 }
                 else if (button & wiimote.BUTTON_DOWN)
                 {
                     if (dades.positions[3] > 0) // Comprovar que no s'excedeix el límit inferior
                     {
-                        dades.positions[3] -= 2;
+                        dades.positions[3] -= 1;
                     }
                 }
             }
