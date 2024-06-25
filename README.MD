@@ -1,72 +1,88 @@
 # Projecte final PD
 Alumnes: **Àfrica Abad i Bernat Rubiol**
 
-El nostre projecte consisteix en desenvolupar un programa per controlar un robot mitjançant un nunchuk o a través d'una interfície web. Amb aquesta combinació de controls, el nostre projecte proporciona una experiència d'interacció completa i flexible amb el robot.
+Professor: **Manuel Lopez Palma**
+
+
+El nostre projecte consisteix en desenvolupar un programa per controlar un braç robòtic mitjançant un nunchuk, comandament wii o a través d'una interfície web (creada per nosaltres). Amb aquesta combinació de controls, el nostre projecte proporciona una experiència d'interacció completa i flexible amb el robot.
+
+
+<p align="center">
+  <img src="https://m.media-amazon.com/images/I/61XfEKpOMVL._AC_SX425_.jpg" alt="alt text">
+</p>
 
 ## Objectiu
 
-Crear una interfície de control pel nostre robot, utilitzant el nunchuk i una web com a dispositiu d'entrada.
+Crear una interfície de control pel nostre braç robòtic, utilitzant el nunchuk, el comandament Wii o una web com a dispositiu d'entrada.
 
 ## Informe
 
 Connexions servo:
 
-![alt text](img/SG90-servo-circuit-diagram.jpg)
+<img src="img/SG90-servo-circuit-diagram.jpg" alt="Circuit Diagram" width="600">
 
-![alt text](img/web.png)
+Cada servo té 3 cables:
+| Color  | PIN   |
+|-------------|-------------|
+| Marró | GND |
+| Vermell | 5V |
+| Taronja | PIN indicat main.cpp |
 
-Conexions nunchuk:
+main.cpp
 
-![alt text](https://www.mauroalfieri.it/wp-content/uploads/2012/02/connettore-nunchuck.jpg)
+    ServoController servoController(12,13,14,15);
 
-Braç robòtic:
+**Assignació de pins per als servos**
 
-![alt text](https://m.media-amazon.com/images/I/61XfEKpOMVL._AC_SX425_.jpg)
+En la implementació del controlador de servos, hem definit els pins per als servos de la següent manera:
 
-Problemes amb la connexió del segon nunchuck:
+| PIN  | Servo   |
+|-------------|-------------|
+| 12 | 1 |
+| 13 | 2 |
+| 14 | 3 |
+| 15 | 4 |
+
+
+Conexions Nunchuk:
+
+<img src="https://www.mauroalfieri.it/wp-content/uploads/2012/02/connettore-nunchuck.jpg" alt="alt text" width="600">
+
+
+Bus de comunicació utilitzat pel nunchuk és el I2C, un bus serie sincron. 
+
+El I2C és utilitzat per establir la comunicació entre l'ESP32  i el Nunchuk. 
+En el nostre projecte la ESP32 actua com a "master" del bus ja que és el dispositiu que inicialitza la comunicació i llegeix les dades del nunchuk.
+El nunchuk és el que actua com a “esclau” perquè respon als comandaments de la ESP32 i proporciona les seves dades quan el master li demana.
+
+Durant el desenvolupament del projecte, es va intentar connectar dos nunchuks amb l'objectiu de controlar els quatre servos. No obstant això, l'intent de connexió del segon nunchuk va resultar ser infructuós. Es van presentar nombrosos errors que no es van poder resoldre malgrat múltiples intents i diverses configuracions.
 
 ![alt text](image.png)
 
-## Diagrama de flux
-
-(el farem quan acabem el `main.cpp`)
+Després d'analitzar diverses alternatives i intentar solucionar els problemes sense èxit, es va prendre la decisió d'utilitzar el comandament de Wii com a dispositiu auxiliar. Aquesta solució va permetre integrar la funcionalitat Bluetooth en el projecte, proporcionant una interfície de control addicional i millorant la connectivitat global del sistema.
 
 
-```mermaid
-graph TD
-A[Inicialització] --> B{Inicialitzar Arduino}
-B --> C{Inicialitzar controlador servos}
-C --> D{Inicialitzar servidor web}
-D --> E{Iniciar nunchuk 1}
-E --> F[Control per nunchuk?]
-F --> |Si| G{Llegir dades nunchuk 1}
-G --> H{Calcular noves posicions servos}
-H --> I{Actualitzar posicions servos}
-I --> J{Imprimir posicions servos}
-J --> K{Pausa}
-K --> F
-F --> |No| L{Servidor web gestiona dades}
-L --> M{Imprimir dades emmagatzemades}
-M --> N{Actualitzar posicions servos}
-N --> O{Pausa}
-O --> A
-```
+La nostra web:
+
+<img src="img/web.png" alt="alt text" width="600">
+
 
 ## Procediment
 
 El nostre professor Manuel ens va dona el braç robòtic a mig montar. Acabar de montar-lo no va ser un problema.
 
-Vam tenir la sort que vam trobar projectes similars al nostre per internet que també comptaven d'un nunchuk, però nosaltres com que tenim 4 servos per comptes de dos, necessitavem dos nunchuks per poder-los controlar tots.
+Durant el desenvolupament del projecte, vam tenir la sort de trobar projectes similars al nostre a internet que també utilitzaven un nunchuk per al control. No obstant això, com que el nostre projecte requeriria el control de quatre servos en lloc de dos, vam haver d'idear una solució innovadora per adaptar aquests exemples a les nostres necessitats específiques.
 
-Per a la incorporació del segon nunchuk si que vam tenir més dificultats i molts errors. 
+Aquesta adaptació va implicar dissenyar un esquema de control que permetés gestionar els quatre servos de manera eficient, garantint la precisió i la resposta adequada de cada component. Això va requerir ajustar el codi de control i la configuració del hardware per assegurar una funcionalitat òptima i una comunicació sense errors entre els dispositius.
+
 
 Quan el projecte ja estava casi acabat, el nostre professor ens va proposar de fer la incorporació de la placa ESP32 a la base del braç robòtic per tal que quedés més net i ordenat. Així que això vam fer.
 
-    (posar foto de nosaltres)
 
-## Ventatges i deventatges 
+| ![alt text](img/placa1.jpg) | ![alt text](img/placa2.jpg) |
+|-----------------------------|-----------------------------|
 
-## Funcionament del codi
+
 
 # Diagrama de codi
 
@@ -137,7 +153,7 @@ Quan el projecte ja estava casi acabat, el nostre professor ens va proposar de f
   - `delay(4);`
 
 
-# Grafic 2
+# Diagrama de flux
 
 ```mermaid
 graph TD
